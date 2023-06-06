@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String
+}
+
+model Customer {
+  id Int @id @default(autoincrement())
+  nama String
+  alamat String
+  no_telp String
+}
+
+model Driver {
+  id Int @id @default(autoincrement())
+  nama String
+  alamat String
+  noTelp String
+  kendaraan Kendaraan?
+}
+
+model Kendaraan {
+  noPol String @id
+  idDriver Int @unique
+  armada String
+  kursiTersedia Int
+  rute Rute?
+  driver Driver @relation(fields: [idDriver], references: [id])
+}
+
+model Kota {
+  id Int @id @default(autoincrement())
+  nama String
+  kotaAsal Rute[] @relation(name: "kotaAsal")
+  kotaTujuan Rute[] @relation(name: "kotaTujuan")
+}
+
+model Rute {
+  id Int @id @default(autoincrement())
+  nama String
+  harga Float
+  noPol String @unique
+  idKotaAsal Int
+  idKotaTujuan Int
+  kotaAsal Kota? @relation(fields: [idKotaAsal], references: [id], name: "kotaAsal")
+  kotaTujuan Kota? @relation(fields: [idKotaTujuan], references: [id], name: "kotaTujuan")
+  kendaraan Kendaraan? @relation(fields: [noPol], references: [noPol])
+}
+
+// model Kota {
+//   id Int @id @default(autoincrement())
+//   nama String
+//   fromKota RuteKota[] @relation(name: "FromKota")
+//   toKota RuteKota[] @relation(name: "ToKota")
+// }
+
+// model Rute {
+//   id Int @id @default(autoincrement())
+//   nama String
+//   harga Float
+//   kota RuteKota[]
+// }
+
+// model RuteKota {
+//   ruteId Int
+//   rute Rute @relation(fields: [ruteId], references: [id])
+
+//   fromKotaId Int
+//   fromKota Kota @relation(fields: [fromKotaId], references: [id], name: "FromKota")
+//   toKotaId Int
+//   toKota Kota @relation(fields: [toKotaId], references: [id], name: "ToKota")
+
+//   @@id([fromKotaId, toKotaId])
+// }
