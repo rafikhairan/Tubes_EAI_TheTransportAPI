@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 const getAllRute = async (req, res) => {
 	const { kotaAsal, kotaTujuan, harga } = req.query;
 	const conditions = {};
-
+	let select = {};
 	if (kotaAsal) {
 		conditions.kotaAsal = {
 			nama: kotaAsal,
@@ -18,30 +18,40 @@ const getAllRute = async (req, res) => {
 	if (harga) {
 		conditions.harga = parseFloat(harga);
 	}
-
-	try {
-		const rute = await prisma.rute.findMany({
-			where: {
-				...conditions,
-			},
-			select: {
-				id: true,
-				nama: true,
-				harga: true,
-				kendaraan: {
-					select: {
-						noPol: true,
-						driver: {
-							select: {
-								nama: true,
-								noTelp: true,
-							},
+	if (req.user.isAdmin == true) {
+		select = {
+			id: true,
+			nama: true,
+			harga: true,
+			kendaraan: {
+				select: {
+					noPol: true,
+					driver: {
+						select: {
+							nama: true,
+							noTelp: true,
 						},
 					},
 				},
 			},
+		};
+	} else {
+		select = {
+			nama: true,
+			harga: true,
+		};
+	}
+	try {
+		let rute = await prisma.rute.findMany({
+			where: {
+				...conditions,
+			},
+			select,
 		});
 		if (rute.length != 0) {
+			if (rute.length == 1) {
+				rute = rute[0];
+			}
 			res.status(200).json({
 				message: "Berhasil mengambil data rute",
 				rute,

@@ -11,13 +11,11 @@ model User {
   id Int @id @default(autoincrement())
   email String @unique
   password String
-}
-
-model Customer {
-  id Int @id @default(autoincrement())
-  nama String
-  alamat String
-  no_telp String
+  nama String?
+  alamat String?
+  noTelp String?
+  isAdmin Boolean @default(false)
+  transaksi Transaksi[]
 }
 
 model Driver {
@@ -54,30 +52,22 @@ model Rute {
   kotaAsal Kota? @relation(fields: [idKotaAsal], references: [id], name: "kotaAsal")
   kotaTujuan Kota? @relation(fields: [idKotaTujuan], references: [id], name: "kotaTujuan")
   kendaraan Kendaraan? @relation(fields: [noPol], references: [noPol])
+  tiket Tiket[]
 }
 
-// model Kota {
-//   id Int @id @default(autoincrement())
-//   nama String
-//   fromKota RuteKota[] @relation(name: "FromKota")
-//   toKota RuteKota[] @relation(name: "ToKota")
-// }
+model Transaksi {
+  id Int @id @default(autoincrement())
+  tanggalPesan DateTime
+  idUser Int
+  tiket Tiket[]
+  user User? @relation(fields: [idUser], references: [id])
+}
 
-// model Rute {
-//   id Int @id @default(autoincrement())
-//   nama String
-//   harga Float
-//   kota RuteKota[]
-// }
-
-// model RuteKota {
-//   ruteId Int
-//   rute Rute @relation(fields: [ruteId], references: [id])
-
-//   fromKotaId Int
-//   fromKota Kota @relation(fields: [fromKotaId], references: [id], name: "FromKota")
-//   toKotaId Int
-//   toKota Kota @relation(fields: [toKotaId], references: [id], name: "ToKota")
-
-//   @@id([fromKotaId, toKotaId])
-// }
+model Tiket {
+  id Int @id @default(autoincrement())
+  jenisTiket String?
+  idTransaksi Int
+  idRute Int
+  rute Rute? @relation(fields: [idRute], references: [id])
+  transaksi Transaksi? @relation(fields: [idTransaksi], references: [id])
+}

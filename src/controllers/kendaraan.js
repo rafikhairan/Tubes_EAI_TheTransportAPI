@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const getKendaraan = async (req, res) => {
-	const kendaraan = await prisma.kendaraan.findMany({
+	let kendaraan = await prisma.kendaraan.findMany({
 		select: {
 			noPol: true,
 			armada: true,
@@ -10,12 +10,20 @@ const getKendaraan = async (req, res) => {
 			driver: {
 				select: {
 					nama: true,
+					alamat: true,
 					noTelp: true,
+				},
+			},
+			rute: {
+				select: {
+					nama: true,
 				},
 			},
 		},
 	});
-
+	if (kendaraan.length == 1) {
+		kendaraan = kendaraan[0];
+	}
 	res.status(200).json({
 		message: "Berhasil mengambil data kendaraan",
 		kendaraan,
@@ -24,7 +32,7 @@ const getKendaraan = async (req, res) => {
 
 const createKendaraan = async (req, res) => {
 	const { body } = req;
-
+	const { driver } = req.body;
 	try {
 		const kendaraan = await prisma.kendaraan.create({
 			data: {
@@ -32,14 +40,33 @@ const createKendaraan = async (req, res) => {
 				noPol: body.noPol,
 				kursiTersedia: body.kursiTersedia,
 				driver: {
-					connect: {
-						id: body.idDriver,
+					create: {
+						nama: driver.nama,
+						alamat: driver.alamat,
+						noTelp: driver.noTelp,
+					},
+				},
+			},
+			select: {
+				noPol: true,
+				armada: true,
+				kursiTersedia: true,
+				driver: {
+					select: {
+						nama: true,
+						alamat: true,
+						noTelp: true,
+					},
+				},
+				rute: {
+					select: {
+						nama: true,
 					},
 				},
 			},
 		});
 		res.status(201).json({
-			message: "Berhasil menambahkan kendaraan baru",
+			message: "Berhasil menambahkan kendaraan beserta driver baru",
 			kendaraan,
 		});
 	} catch (error) {

@@ -3,18 +3,12 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "nama" TEXT,
+    "alamat" TEXT,
+    "noTelp" TEXT,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Customer" (
-    "id" SERIAL NOT NULL,
-    "nama" TEXT NOT NULL,
-    "alamat" TEXT NOT NULL,
-    "no_telp" TEXT NOT NULL,
-
-    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -57,6 +51,25 @@ CREATE TABLE "Rute" (
     CONSTRAINT "Rute_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Transaksi" (
+    "id" SERIAL NOT NULL,
+    "tanggalPesan" TIMESTAMP(3) NOT NULL,
+    "idUser" INTEGER NOT NULL,
+
+    CONSTRAINT "Transaksi_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Tiket" (
+    "id" SERIAL NOT NULL,
+    "jenisTiket" TEXT,
+    "idTransaksi" INTEGER NOT NULL,
+    "idRute" INTEGER NOT NULL,
+
+    CONSTRAINT "Tiket_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -77,3 +90,12 @@ ALTER TABLE "Rute" ADD CONSTRAINT "Rute_idKotaTujuan_fkey" FOREIGN KEY ("idKotaT
 
 -- AddForeignKey
 ALTER TABLE "Rute" ADD CONSTRAINT "Rute_noPol_fkey" FOREIGN KEY ("noPol") REFERENCES "Kendaraan"("noPol") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaksi" ADD CONSTRAINT "Transaksi_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Tiket" ADD CONSTRAINT "Tiket_idRute_fkey" FOREIGN KEY ("idRute") REFERENCES "Rute"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Tiket" ADD CONSTRAINT "Tiket_idTransaksi_fkey" FOREIGN KEY ("idTransaksi") REFERENCES "Transaksi"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
