@@ -14,27 +14,32 @@ const login = async (req, res) => {
 				email,
 			},
 		});
-		const result = await comparePassword(password, user.password);
-		if (!result) {
-			return res.status(401).json({
+		if (user) {
+			const result = await comparePassword(password, user.password);
+			if (!result) {
+				return res.status(401).json({
+					message: "Login gagal",
+				});
+			}
+			jwt.sign(
+				{
+					email: user.email,
+					isAdmin: user.isAdmin,
+				},
+				JWT_SECRET,
+				{ expiresIn: 60 * 60 },
+				(err, token) => {
+					res.status(200).json({
+						message: "Login berhasil, token akan expire dalam 1 jam",
+						token,
+					});
+				}
+			);
+		} else {
+			res.status(401).json({
 				message: "Login gagal",
 			});
 		}
-		jwt.sign(
-			{
-				id: user.id,
-				email: user.email,
-				isAdmin: user.isAdmin,
-			},
-			JWT_SECRET,
-			{ expiresIn: 60 * 60 },
-			(err, token) => {
-				res.status(200).json({
-					message: "Login berhasil, token akan expire dalam 1 jam",
-					token,
-				});
-			}
-		);
 	} catch (error) {
 		res.status(500).json({
 			message: error.message,

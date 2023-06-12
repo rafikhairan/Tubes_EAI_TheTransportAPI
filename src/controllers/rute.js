@@ -23,9 +23,12 @@ const getAllRute = async (req, res) => {
 			id: true,
 			nama: true,
 			harga: true,
+			berangkat: true,
+			kedatangan: true,
 			kendaraan: {
 				select: {
 					noPol: true,
+					kursiTersedia: true,
 					driver: {
 						select: {
 							nama: true,
@@ -39,6 +42,13 @@ const getAllRute = async (req, res) => {
 		select = {
 			nama: true,
 			harga: true,
+			berangkat: true,
+			kedatangan: true,
+			kendaraan: {
+				select: {
+					kursiTersedia: true,
+				},
+			},
 		};
 	}
 	try {
@@ -69,11 +79,11 @@ const getAllRute = async (req, res) => {
 };
 
 const createRute = async (req, res) => {
-	const { body } = req;
+	const { kotaAsal, kotaTujuan, harga, noPol, berangkat, kedatangan } = req.body;
 	const idKotaAsal = await prisma.kota
 		.findFirst({
 			where: {
-				nama: body.kotaAsal,
+				nama: kotaAsal,
 			},
 		})
 		.then((data) => {
@@ -82,7 +92,7 @@ const createRute = async (req, res) => {
 	const idKotaTujuan = await prisma.kota
 		.findFirst({
 			where: {
-				nama: body.kotaTujuan,
+				nama: kotaTujuan,
 			},
 		})
 		.then((data) => {
@@ -92,11 +102,13 @@ const createRute = async (req, res) => {
 	try {
 		const rute = await prisma.rute.create({
 			data: {
-				nama: `${body.kotaAsal} - ${body.kotaTujuan}`,
-				harga: parseFloat(body.harga),
+				nama: `${kotaAsal} - ${kotaTujuan}`,
+				harga: parseFloat(harga),
+				berangkat,
+				kedatangan,
 				kendaraan: {
 					connect: {
-						noPol: body.noPol,
+						noPol,
 					},
 				},
 				kotaAsal: {
@@ -143,9 +155,8 @@ const deleteRute = async (req, res) => {
 
 const updateRute = async (req, res) => {
 	const { idRute } = req.params;
-	const { harga, noPol } = req.body;
+	const { harga, noPol, berangkat, kedatangan } = req.body;
 	const data = {};
-
 	if (harga) {
 		data.harga = parseFloat(harga);
 	}
@@ -156,7 +167,12 @@ const updateRute = async (req, res) => {
 			},
 		};
 	}
-
+	if (berangkat) {
+		data.berangkat = berangkat;
+	}
+	if (kedatangan) {
+		data.kedatangan = kedatangan;
+	}
 	try {
 		const rute = await prisma.rute.update({
 			where: {

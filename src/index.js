@@ -10,6 +10,7 @@ const ruteRoutes = require("./routes/rute");
 const kendaraanRoutes = require("./routes/kendaraan");
 const kotaRoutes = require("./routes/kota");
 const transaksiRoutes = require("./routes/transaksi");
+const tourismRoutes = require("./routes/tourism");
 
 const authMiddleware = require("./middleware/auth");
 const checkAdminMiddleware = require("./middleware/checkAdmin");
@@ -22,9 +23,8 @@ app.use("/rute", authMiddleware, ruteRoutes);
 app.use("/kendaraan", [authMiddleware, checkAdminMiddleware], kendaraanRoutes);
 app.use("/kota", authMiddleware, kotaRoutes);
 app.use("/transaksi", authMiddleware, transaksiRoutes);
+app.use("/tourism", [authMiddleware, checkAdminMiddleware], tourismRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Server berjalan di port ${PORT}`);
 });
-
-console.log(process.env.DATABASE_URL);

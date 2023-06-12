@@ -13,7 +13,7 @@ const getTransaksi = async (req, res) => {
 				},
 				select: {
 					id: true,
-					tanggalPesan: true,
+					tanggalTransaksi: true,
 					user: {
 						select: {
 							nama: true,
@@ -22,7 +22,6 @@ const getTransaksi = async (req, res) => {
 					tiket: {
 						select: {
 							id: true,
-							jenisTiket: true,
 							rute: {
 								select: {
 									nama: true,
@@ -44,10 +43,10 @@ const getTransaksi = async (req, res) => {
 			transaksi = transaksi[0];
 		}
 		if (transaksi.length == undefined) {
-			transaksi.tanggalPesan = transaksi.tanggalPesan.toDateString();
+			transaksi.tanggalTransaksi = transaksi.tanggalTransaksi.toDateString();
 		} else {
 			transaksi.forEach((data) => {
-				data.tanggalPesan = data.tanggalPesan.toDateString();
+				data.tanggalTransaksi = data.tanggalTransaksi.toDateString();
 			});
 		}
 		res.status(200).json({
@@ -62,12 +61,13 @@ const getTransaksi = async (req, res) => {
 };
 
 const createTransaksi = async (req, res) => {
-	const { idRute, jumlahBeli, jenisTiket } = req.body;
+	const { idRute, jumlahBeli, tanggalPesan } = req.body;
 	const tiket = {};
 	if (jumlahBeli > 1) {
 		tiket.create = [];
 		for (let i = 1; i <= jumlahBeli; i++) {
 			tiket.create.push({
+				tanggalPesan,
 				rute: {
 					connect: {
 						id: idRute,
@@ -77,6 +77,7 @@ const createTransaksi = async (req, res) => {
 		}
 	} else {
 		tiket.create = {
+			tanggalPesan,
 			rute: {
 				connect: {
 					id: idRute,
@@ -87,20 +88,34 @@ const createTransaksi = async (req, res) => {
 	try {
 		const transaksi = await prisma.transaksi.create({
 			data: {
+				tanggalTransaksi: new Date(),
 				user: {
 					connect: {
-						id: req.user.id,
+						email: req.user.email,
 					},
 				},
-				tanggalPesan: new Date(),
 				tiket,
 			},
 			select: {
 				id: true,
-				tanggalPesan: true,
+				tanggalTransaksi: true,
 			},
 		});
-		transaksi.tanggalPesan = transaksi.tanggalPesan.toDateString();
+		await prisma.rute.update({
+			where: {
+				id: idRute,
+			},
+			data: {
+				kendaraan: {
+					update: {
+						kursiTersedia: {
+							decrement: jumlahBeli,
+						},
+					},
+				},
+			},
+		});
+		transaksi.tanggalTransaksi = transaksi.tanggalTransaksi.toDateString();
 		res.status(201).json({
 			message: "Berhasil memesan tiket",
 			transaksi,

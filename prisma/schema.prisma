@@ -48,6 +48,8 @@ model Rute {
   nama String
   harga Float
   noPol String @unique
+  berangkat String
+  kedatangan String
   idKotaAsal Int
   idKotaTujuan Int
   kotaAsal Kota? @relation(fields: [idKotaAsal], references: [id], name: "kotaAsal")
@@ -58,15 +60,15 @@ model Rute {
 
 model Transaksi {
   id Int @id @default(autoincrement())
-  tanggalPesan DateTime
-  idUser Int
+  tanggalTransaksi DateTime
+  email String
   tiket Tiket[]
-  user User? @relation(fields: [idUser], references: [id])
+  user User? @relation(fields: [email], references: [email])
 }
 
 model Tiket {
   id Int @id @default(autoincrement())
-  jenisTiket String?
+  tanggalPesan String
   idTransaksi Int
   idRute Int
   rute Rute? @relation(fields: [idRute], references: [id])

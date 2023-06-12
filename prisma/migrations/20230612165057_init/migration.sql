@@ -45,6 +45,8 @@ CREATE TABLE "Rute" (
     "nama" TEXT NOT NULL,
     "harga" DOUBLE PRECISION NOT NULL,
     "noPol" TEXT NOT NULL,
+    "berangkat" TEXT NOT NULL,
+    "kedatangan" TEXT NOT NULL,
     "idKotaAsal" INTEGER NOT NULL,
     "idKotaTujuan" INTEGER NOT NULL,
 
@@ -54,8 +56,8 @@ CREATE TABLE "Rute" (
 -- CreateTable
 CREATE TABLE "Transaksi" (
     "id" SERIAL NOT NULL,
-    "tanggalPesan" TIMESTAMP(3) NOT NULL,
-    "idUser" INTEGER NOT NULL,
+    "tanggalTransaksi" TIMESTAMP(3) NOT NULL,
+    "email" TEXT NOT NULL,
 
     CONSTRAINT "Transaksi_pkey" PRIMARY KEY ("id")
 );
@@ -63,7 +65,7 @@ CREATE TABLE "Transaksi" (
 -- CreateTable
 CREATE TABLE "Tiket" (
     "id" SERIAL NOT NULL,
-    "jenisTiket" TEXT,
+    "tanggalPesan" TEXT NOT NULL,
     "idTransaksi" INTEGER NOT NULL,
     "idRute" INTEGER NOT NULL,
 
@@ -92,7 +94,7 @@ ALTER TABLE "Rute" ADD CONSTRAINT "Rute_idKotaTujuan_fkey" FOREIGN KEY ("idKotaT
 ALTER TABLE "Rute" ADD CONSTRAINT "Rute_noPol_fkey" FOREIGN KEY ("noPol") REFERENCES "Kendaraan"("noPol") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaksi" ADD CONSTRAINT "Transaksi_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaksi" ADD CONSTRAINT "Transaksi_email_fkey" FOREIGN KEY ("email") REFERENCES "User"("email") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Tiket" ADD CONSTRAINT "Tiket_idRute_fkey" FOREIGN KEY ("idRute") REFERENCES "Rute"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

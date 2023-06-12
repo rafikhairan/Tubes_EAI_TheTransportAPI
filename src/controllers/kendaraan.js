@@ -76,7 +76,30 @@ const createKendaraan = async (req, res) => {
 	}
 };
 
+const updateKendaraan = async (req, res) => {
+	const { noPol, kursiTersedia } = req.body;
+	try {
+		const kendaraan = await prisma.kendaraan.update({
+			where: {
+				noPol,
+			},
+			data: {
+				kursiTersedia,
+			},
+		});
+		res.status(201).json({
+			message: "Berhasil mengupdate kendaraan",
+			kendaraan,
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: error.message,
+		});
+	}
+};
+
 module.exports = {
 	getKendaraan,
 	createKendaraan,
+	updateKendaraan,
 };
